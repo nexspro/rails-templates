@@ -1,3 +1,4 @@
+# Gems
 inject_into_file "Gemfile", before: "group :development, :test do" do
   <<~RUBY
     gem "devise"
@@ -7,19 +8,27 @@ inject_into_file "Gemfile", before: "group :development, :test do" do
     gem "dotenv-rails"
     gem "sassc-rails"
     gem "hotwire-rails"
+    gem "pg"
   RUBY
 end
 
+# Manifest for Sprockets
 run "mkdir -p app/assets/config"
 file "app/assets/config/manifest.js", <<~JS
   //= link_tree ../images
   //= link_directory ../stylesheets .css
 JS
 
+# Database config for PostgreSQL
+gsub_file "config/database.yml", /username: .+/, "username: postgres"
+gsub_file "config/database.yml", /password:/, "password:"
+
 after_bundle do
   rails_command "hotwire:install"
   rails_command "db:drop db:create db:migrate"
+
   generate("simple_form:install")
+
   generate(:controller, "pages", "home", "--skip-routes")
   route 'root to: "pages#home"'
 
@@ -57,12 +66,12 @@ after_bundle do
   run "touch .env"
 
   readme_content = <<~MARKDOWN
-    # 🚀 Certification — Ruby on Rails App (Hotwire, No Bootstrap)
+    # 🚀 Certification — Ruby on Rails App (Hotwire, PostgreSQL, No Bootstrap)
 
-    Application générée avec un template minimal, incluant :
+    Application générée avec un template minimal :
 
     - Devise
-    - Simple Form
+    - Simple Form (sans Bootstrap)
     - Hotwire (Turbo + Stimulus)
     - Dotenv
     - FontAwesome
@@ -88,7 +97,6 @@ after_bundle do
 
   git :init
   git add: "."
-  git commit: "-m 'Initial commit: Devise + SimpleForm + Hotwire (no Bootstrap)'"
-
-  say "✅ Projet prêt avec Hotwire, Devise, SimpleForm, sans Bootstrap", :green
+  git commit: "-m 'Initial commit: Devise + SimpleForm + Hotwire + PostgreSQL'"
+  say "✅ Projet prêt avec Devise, Hotwire, Simple Form sans Bootstrap et PostgreSQL", :green
 end
