@@ -1,28 +1,17 @@
-# Rails Templates
+# 🚀 Certification — Ruby on Rails App (No Bootstrap)
 
-Quickly generate a rails app with the default [Wagon](https://www.lewagon.com) configuration
-using [Rails Templates](http://guides.rubyonrails.org/rails_application_templates.html).
+Ce projet a été généré avec un template personnalisé basé sur [Le Wagon](https://github.com/lewagon/rails-templates), mais **sans Bootstrap** pour laisser place à un design system custom.
 
-⚠️ The following templates have been made for Rails 7. If you use Rails 6, please refer to the [`no-update` branch templates](https://github.com/lewagon/rails-templates/tree/no-update)
+---
 
-## Minimal
+## ✨ Stack utilisée
 
-Get a minimal rails app ready to be deployed on Heroku with Bootstrap, Simple form and debugging gems.
+- [Ruby on Rails 7](https://rubyonrails.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Devise](https://github.com/heartcombo/devise) — Authentification
+- [Simple Form](https://github.com/heartcombo/simple_form) — Formulaires
+- [Dotenv Rails](https://github.com/bkeepers/dotenv) — Variables d’environnement
+- [Importmap](https://github.com/rails/importmap-rails) — JS natif (pas de Webpacker)
+- ❌ **Pas de Bootstrap**
 
-```bash
-rails new \
-  -d postgresql \
-  -m https://raw.githubusercontent.com/lewagon/rails-templates/master/minimal.rb \
-  CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
-```
-
-## Devise
-
-Same as minimal **plus** a Devise install with a generated `User` model.
-
-```bash
-rails new \
-  -d postgresql \
-  -m https://raw.githubusercontent.com/lewagon/rails-templates/master/devise.rb \
-  CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
-```
+---
