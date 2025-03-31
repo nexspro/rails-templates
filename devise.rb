@@ -6,6 +6,7 @@ inject_into_file "Gemfile", before: "group :development, :test do" do
     gem "font-awesome-sass", "~> 6.1"
     gem "dotenv-rails"
     gem "sassc-rails"
+    gem "hotwire-rails"
   RUBY
 end
 
@@ -16,9 +17,10 @@ file "app/assets/config/manifest.js", <<~JS
 JS
 
 after_bundle do
+  rails_command "hotwire:install"
   rails_command "db:drop db:create db:migrate"
   generate("simple_form:install")
-  generate(:controller, "pages", "home", "--skip-routes", "--no-test-framework")
+  generate(:controller, "pages", "home", "--skip-routes")
   route 'root to: "pages#home"'
 
   append_file ".gitignore", <<~TXT
@@ -30,8 +32,7 @@ after_bundle do
   generate("devise:install")
   generate("devise", "User")
 
-  run "rm app/controllers/application_controller.rb"
-  file "app/controllers/application_controller.rb", <<~RUBY
+  file "app/controllers/application_controller.rb", <<~RUBY, force: true
     class ApplicationController < ActionController::Base
       before_action :authenticate_user!
     end
@@ -40,8 +41,7 @@ after_bundle do
   rails_command "db:migrate"
   generate("devise:views")
 
-  run "rm app/controllers/pages_controller.rb"
-  file "app/controllers/pages_controller.rb", <<~RUBY
+  file "app/controllers/pages_controller.rb", <<~RUBY, force: true
     class PagesController < ApplicationController
       skip_before_action :authenticate_user!, only: [ :home ]
 
@@ -57,17 +57,16 @@ after_bundle do
   run "touch .env"
 
   readme_content = <<~MARKDOWN
-    # 🚀 Certification — Ruby on Rails App (No Bootstrap)
+    # 🚀 Certification — Ruby on Rails App (Hotwire, No Bootstrap)
 
-    Ce projet a été généré avec un template personnalisé sans Bootstrap.
+    Application générée avec un template minimal, incluant :
 
-    ## Stack
-
-    - Ruby on Rails 7
-    - PostgreSQL
     - Devise
     - Simple Form
+    - Hotwire (Turbo + Stimulus)
     - Dotenv
+    - FontAwesome
+    - PostgreSQL
     - Importmap
 
     ## Setup
@@ -80,17 +79,16 @@ after_bundle do
 
     ## Déploiement
 
-    - Préparé pour Heroku (`bundle lock --add-platform x86_64-linux`)
-    - Fichier `.env` prêt à l’emploi
-    - Config devise + page home
+    - `.env` déjà prêt
+    - Support Heroku (Linux platform locked)
+    - Root route : `pages#home`
   MARKDOWN
 
   file "README.md", readme_content, force: true
 
   git :init
   git add: "."
-  git commit: "-m 'Initial commit: Devise + SimpleForm (no Bootstrap)'"
+  git commit: "-m 'Initial commit: Devise + SimpleForm + Hotwire (no Bootstrap)'"
 
-  say "✅ Projet prêt sans Bootstrap, avec Devise, SimpleForm, .env et README", :green
-  say "👉 Prochaine étape : rails s ou rails db:create si pas encore fait", :blue
+  say "✅ Projet prêt avec Hotwire, Devise, SimpleForm, sans Bootstrap", :green
 end
