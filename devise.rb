@@ -1,5 +1,3 @@
-# no_bootstrap.rb
-
 inject_into_file "Gemfile", before: "group :development, :test do" do
   <<~RUBY
     gem "devise"
@@ -11,19 +9,20 @@ inject_into_file "Gemfile", before: "group :development, :test do" do
   RUBY
 end
 
+run "mkdir -p app/assets/config"
+file "app/assets/config/manifest.js", <<~JS
+  //= link_tree ../images
+  //= link_directory ../stylesheets .css
+JS
+
 after_bundle do
   rails_command "db:drop db:create db:migrate"
-
-  generate("simple_form:install") # ❌ no --bootstrap
+  generate("simple_form:install")
   generate(:controller, "pages", "home", "--skip-routes", "--no-test-framework")
-
   route 'root to: "pages#home"'
 
   append_file ".gitignore", <<~TXT
-    # Ignore .env file containing credentials.
     .env*
-
-    # Ignore system files
     *.swp
     .DS_Store
   TXT
@@ -51,23 +50,47 @@ after_bundle do
     end
   RUBY
 
-  # Dev / Prod mailer
   environment 'config.action_mailer.default_url_options = { host: "http://localhost:3000" }', env: "development"
   environment 'config.action_mailer.default_url_options = { host: "http://TODO_PUT_YOUR_DOMAIN_HERE" }', env: "production"
 
-  # Heroku platform
   run "bundle lock --add-platform x86_64-linux"
-
-  # Dotenv
   run "touch .env"
 
-  # Rubocop (optionnel)
-  run "curl -L https://raw.githubusercontent.com/lewagon/rails-templates/master/.rubocop.yml > .rubocop.yml"
+  readme_content = <<~MARKDOWN
+    # 🚀 Certification — Ruby on Rails App (No Bootstrap)
+
+    Ce projet a été généré avec un template personnalisé sans Bootstrap.
+
+    ## Stack
+
+    - Ruby on Rails 7
+    - PostgreSQL
+    - Devise
+    - Simple Form
+    - Dotenv
+    - Importmap
+
+    ## Setup
+
+    ```bash
+    bundle install
+    rails db:create db:migrate
+    rails s
+    ```
+
+    ## Déploiement
+
+    - Préparé pour Heroku (`bundle lock --add-platform x86_64-linux`)
+    - Fichier `.env` prêt à l’emploi
+    - Config devise + page home
+  MARKDOWN
+
+  file "README.md", readme_content, force: true
 
   git :init
   git add: "."
   git commit: "-m 'Initial commit: Devise + SimpleForm (no Bootstrap)'"
 
-  say "✅ Projet prêt sans Bootstrap, avec Devise, SimpleForm et .env", :green
+  say "✅ Projet prêt sans Bootstrap, avec Devise, SimpleForm, .env et README", :green
   say "👉 Prochaine étape : rails s ou rails db:create si pas encore fait", :blue
 end
